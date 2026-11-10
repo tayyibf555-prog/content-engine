@@ -653,11 +653,12 @@ button:focus-visible, .card:focus-visible, #tlCanvas:focus-visible { outline: 2p
 
 <div class="app">
   <header class="top">
-    <a class="engine-back" id="engineBack" href="index.html#edits"><span aria-hidden="true">←</span> Content engine</a>
+    <a class="engine-back" id="engineBack" href="index.html#upload"><span aria-hidden="true">←</span> Upload</a>
     <div class="brand"><span class="dot" aria-hidden="true"></span><span>Reel Cortex</span><span class="tag">AI EDITOR</span></div>
     <div class="src mono">Source · DRAW reel · 53.4 s · 1080×1920 · 200 words</div>
     <div class="phase" role="status" aria-live="polite"><span class="pulse" aria-hidden="true"></span><span id="phaseLabel">Editing · live</span></div>
     <div class="actions">
+      <a class="engine-back" id="engineNext" href="index.html#trials">Trials <span aria-hidden="true">→</span></a>
       <button id="btnRun" class="primary" type="button">Run full cycle</button>
       <button id="btnSound" type="button" aria-pressed="false">Sound off</button>
     </div>
@@ -3146,8 +3147,18 @@ if (!S.playing) $('#btnPlay').textContent = 'Play';
 document.fonts && document.fonts.ready.then(() => { tlStaticKey = ''; trackKey = ''; metricsDirty = true; AG.forEach((a) => { a.drawKey = ''; }); });
 requestAnimationFrame(frame);
 // the back link returns to the matching step on the dashboard
-const BACK_STEP = { edit: 'edits', sim: 'predict', brain: 'predict', post: 'trials', track: 'trials', loop: 'recut' };
-$('#engineBack').addEventListener('click', (e) => { e.currentTarget.href = 'index.html#' + (BACK_STEP[screen] || 'edits'); });
+const BACK_STEP = { edit: ['upload', 'Upload'], sim: ['trials', 'Trials'], brain: ['trials', 'Trials'], post: ['trials', 'Trials'], track: ['trials', 'Trials'], loop: ['winners', 'Winners'] };
+const NEXT_STEP = { edit: ['trials', 'Trials'], sim: ['trials', 'Trials'], brain: ['trials', 'Trials'], post: ['trials', 'Trials'], track: ['winners', 'Winners'], loop: ['creatives', 'Ads'] };
+function syncEngineLinks() {
+  const b = BACK_STEP[screen] || BACK_STEP.edit, n = NEXT_STEP[screen] || NEXT_STEP.edit;
+  const back = $('#engineBack'), next = $('#engineNext');
+  back.href = 'index.html#' + b[0]; back.lastChild.textContent = ' ' + b[1];
+  next.href = 'index.html#' + n[0]; next.firstChild.textContent = n[1] + ' ';
+}
+tabEls.forEach((t) => t.addEventListener('click', syncEngineLinks));
+window.addEventListener('hashchange', syncEngineLinks);
+['#engineBack', '#engineNext'].forEach((sel) => $(sel).addEventListener('click', syncEngineLinks));
+setTimeout(syncEngineLinks, 0);
 const hash0 = location.hash.slice(1);
 if (SCREENS.includes(hash0)) showScreen(hash0, false);
 if (hash0 === 'run') setTimeout(startRun, 900);
